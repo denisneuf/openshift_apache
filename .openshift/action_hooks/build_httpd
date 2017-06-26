@@ -51,6 +51,8 @@ if [[ ! -e ${TMPDIR}httpd-${APACHE_VERSION} ]]; then
 
   tar -xvzf ${pkg}
 
+  rm -rf ${pkg}
+
 fi
 
 export PATH=${OPENSHIFT_DIY_DIR}run/libs/bin:$PATH
