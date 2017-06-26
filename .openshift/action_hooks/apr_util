@@ -47,6 +47,8 @@ function install_apr_util() {
 
     tar -xvzf ${pkg}
 
+    rm -rf ${pkg}
+
   else
 
     echo "File downloaded: ${pkg}."
@@ -54,6 +56,8 @@ function install_apr_util() {
     if [[ ! -d ${tar} ]]; then
 
       tar -xvzf ${pkg}
+
+      rm -rf ${pkg}
 
     fi
 
@@ -70,6 +74,12 @@ function install_apr_util() {
   make install >> ${TMPDIR}apr-${APRUTIL_VERSION}.log
 
   echo "End aprutil >> "apr-${APRUTIL_VERSION}
+
+  pushd ${TMPDIR}
+
+  echo "rm -rf"apr-${APRUTIL_VERSION}
+
+  rm -rf apr-${APRUTIL_VERSION}
 
   #make_install_libtool
 

@@ -49,6 +49,8 @@ function install_pcre() {
 
     tar -xvzf ${pkg}
 
+    rm -rf ${pkg}
+
   else
 
     echo "File downloaded: ${pkg}."
@@ -56,6 +58,8 @@ function install_pcre() {
     if [[ ! -d ${tar} ]]; then
 
       tar -xvzf ${pkg}
+
+      rm -rf ${pkg}
 
     fi
 
@@ -72,6 +76,12 @@ function install_pcre() {
   make install >> ${TMPDIR}pcre-${PCRE_VERSION}.log
 
   echo "End PCRE_VERSION >> "pcre-${PCRE_VERSION}
+
+  pushd ${TMPDIR}
+
+  echo "rm -rf"pcre-${PCRE_VERSION}
+
+  rm -rf pcre-${PCRE_VERSION}
 
   #make_install_libtool
 

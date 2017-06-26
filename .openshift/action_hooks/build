@@ -96,16 +96,16 @@ check_pcre
 
 #php
 
-check_libtool
+#check_libtool
 
-check_libmcrypt
-#install_libmcrypt
+#check_libmcrypt
 
-check_bison
 
-check_icu
+#check_bison
 
-check_re2c
+#check_icu
+
+#check_re2c
 
 
 
