@@ -112,9 +112,9 @@ check_re2c
 # Push the libs path to the PATH
 export PATH=${OPENSHIFT_DIY_DIR}run/libs/bin:$PATH
 
-check_httpd
+#check_httpd
 
-check_php
+#check_php
 
 
 
