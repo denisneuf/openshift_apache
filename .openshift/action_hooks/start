@@ -15,13 +15,13 @@ umask 077
 # Load common interface All libs check chk chk chk chk
 source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/common
 
-echo "START APACHE"
+#echo "START APACHE"
 
-pushd ${OPENSHIFT_RUN_DIR}httpd/bin/
+#pushd ${OPENSHIFT_RUN_DIR}httpd/bin/
 
-./apachectl -v
+#./apachectl -v
 
-./apachectl start
+#./apachectl start
 
 echo "----------"
 echo "END START SECTION"
