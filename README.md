@@ -16,3 +16,9 @@ Cloned to:  /Users/hanuman/.Trash/openshiftapache 22.59.36/openshiftlibs
 ---------------------------------------------
 
 git push --force ssh://5951757289f5cff15b000002@openshiftlibs-zhujiang.rhcloud.com/~/git/openshiftlibs.git/ master:master
+
+
+
+cp -a openshift_apache/* openshiftapache/*
+
+git push --force "openshift" master:master
