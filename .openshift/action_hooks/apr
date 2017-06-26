@@ -1,0 +1,76 @@
+#!/bin/bash
+
+function check_apr() {
+    local apr_bin=${OPENSHIFT_DIY_DIR}run/libs/bin/apr-1-config
+    if [[ ! -e  ${apr_bin} ]]; then
+        echo "! Libtool not installed "${APR_VERSION='1.5.2'}
+        install_apr
+    else
+        local apr_version=`${apr_bin} --version`
+
+        if [[ ${APR_VERSION} != ${apr_version} ]]; then
+            echo "Apr old, version: ${apr_version}."
+            install_apr
+        else
+            echo "Apr up to date, version: ${apr_version}."
+        fi
+    fi
+}
+
+
+
+
+function install_apr() {
+
+  local pkg=apr-${APR_VERSION}.tar.gz
+
+  local tar=apr-${APR_VERSION}
+
+  local lib='apr'
+
+  local ts=`date +%s`
+
+  pushd ${TMPDIR}
+
+  echo "install_apr_"
+
+  #echo ${tar}
+  #echo ${ts}
+  #echo ${pkg}
+
+  if [[ ! -e ${pkg} ]]; then
+
+
+    #echo http://apache.rediris.net/${lib}/${pkg}
+
+    wget -O ${pkg} http://apache.uvigo.es/apr/${pkg}
+
+    tar -xvzf ${pkg}
+
+  else
+
+    echo "File downloaded: ${pkg}."
+
+    if [[ ! -d ${tar} ]]; then
+
+      tar -xvzf ${pkg}
+
+    fi
+
+
+  fi
+
+  pushd ${TMPDIR}apr-${APR_VERSION}
+
+  echo "make_install_apr"
+
+  ./configure --prefix=${OPENSHIFT_DIY_DIR}run/libs --libdir=${OPENSHIFT_DIY_DIR}run/libs/lib64
+  make
+  make install >> ${TMPDIR}apr-${APR_VERSION}.log
+
+  echo "End apr >> "apr-${APR_VERSION}
+
+  #make_install_libtool
+
+
+}

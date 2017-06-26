@@ -1,0 +1,79 @@
+#!/bin/bash
+
+function check_pcre() {
+    local pcre_bin=${OPENSHIFT_DIY_DIR}run/libs/bin/pcretest
+    if [[ ! -e  ${pcre_bin} ]]; then
+        echo "! Libtool PCRE_VERSION not installed "${PCRE_VERSION='8.40'}
+        install_pcre
+    else
+        local pcre_version=`${pcre_bin} -C | head -n 1 | grep -oh '[0-9.]*' | head -n 1 | tr -d '\n'`
+
+        echo "pcre_version: ${pcre_version}"
+
+        if [[ ${PCRE_VERSION} != ${pcre_version} ]]; then
+            echo "pcre old, version: ${pcre_version}."
+            install_pcre
+        else
+            echo "pcre up to date, version: ${PCRE_VERSION}."
+        fi
+    fi
+}
+
+
+
+
+function install_pcre() {
+
+  local pkg=pcre-${PCRE_VERSION}.tar.gz
+
+  local tar=pcre-${PCRE_VERSION}
+
+  local lib='pcre'
+
+  local ts=`date +%s`
+
+  pushd ${TMPDIR}
+
+  echo "install_PCRE"
+
+  #echo ${tar}
+  #echo ${ts}
+  #echo ${pkg}
+
+  if [[ ! -e ${pkg} ]]; then
+
+
+    #echo http://apache.rediris.net/${lib}/${pkg}
+
+    wget -O ${pkg} https://ftp.pcre.org/pub/pcre/${pkg}
+
+    tar -xvzf ${pkg}
+
+  else
+
+    echo "File downloaded: ${pkg}."
+
+    if [[ ! -d ${tar} ]]; then
+
+      tar -xvzf ${pkg}
+
+    fi
+
+
+  fi
+
+  pushd ${TMPDIR}pcre-${PCRE_VERSION}
+
+
+  echo "make_install_apr"
+
+  ./configure --prefix=${OPENSHIFT_DIY_DIR}run/libs --libdir=${OPENSHIFT_DIY_DIR}run/libs/lib64
+  make
+  make install >> ${TMPDIR}pcre-${PCRE_VERSION}.log
+
+  echo "End PCRE_VERSION >> "pcre-${PCRE_VERSION}
+
+  #make_install_libtool
+
+
+}

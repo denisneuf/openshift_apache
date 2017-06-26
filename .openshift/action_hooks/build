@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# Load common interface All libs check chk chk chk chk chk
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/common
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/apr
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/apr_util
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/pcre
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/build_httpd
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/libtool
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/bison
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/libmcrypt
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/icu
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/re2c
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/build_php
+
+
+echo "-------------u-u"
+echo "BUILD HTTPDX IP >> "${OPENSHIFT_IP}":"${OPENSHIFT_PORT}
+echo ${OPENSHIFT_RUNTIME_DIR}
+echo ${OPENSHIFT_RUN_DIR}
+echo ${OPENSHIFT_BIN}
+echo ${OPENSHIFT_REPO}
+
+APACHE_VERSION='2.4.25'
+
+PHP_VERSION='5.6.30'
+
+
+APR_VERSION='1.5.2'
+APRUTIL_VERSION='1.5.4'
+
+PCRE_VERSION='8.40'
+#PCRE_VERSION='10.23'
+
+
+LIBTOOL_VERSION='2.4.6'
+
+
+RE2C_VERSION='0.14.3'
+
+LIBMCRYPT_VERSION='2.5.8'
+##BISON_VERSION='3.0.2'
+BISON_VERSION='2.7.1'
+
+ICU_VERSION='54.1'
+
+RE2C_VERSION='0.14.3'
+
+
+
+
+
+if [[ ! -d ${OPENSHIFT_DIY_DIR}run/httpd/ ]]; then
+
+  echo "CREATING FOLDER FOR APACHE >> "${OPENSHIFT_DIY_DIR}run/httpd/
+
+  mkdir -p ${OPENSHIFT_DIY_DIR}run/httpd/
+
+else
+
+  echo "FOLDERS ALREADY CREATED FOR APACHE >> "${OPENSHIFT_DIY_DIR}run/httpd/
+
+fi
+
+if [[ ! -d ${OPENSHIFT_DIY_DIR}run/libs/ ]]; then
+
+  echo "CREATING FOLDER FOR LIBS >> "${OPENSHIFT_DIY_DIR}run/libs/
+
+  mkdir -p ${OPENSHIFT_DIY_DIR}run/libs/
+  mkdir -p ${OPENSHIFT_DIY_DIR}run/libs/lib64
+
+
+else
+
+  echo "FOLDERS ALREADY CREATED FOR LIBSs >> "${OPENSHIFT_DIY_DIR}run/libs/
+
+fi
+
+
+#apache
+
+check_apr
+
+check_apr_util
+
+check_pcre
+
+#php
+
+check_libtool
+
+check_libmcrypt
+#install_libmcrypt
+
+check_bison
+
+check_icu
+
+check_re2c
+
+
+
+# Push the libs path to the PATH
+export PATH=${OPENSHIFT_DIY_DIR}run/libs/bin:$PATH
+
+check_httpd
+
+check_php
+
+
+
+echo "-----------"
+echo "END CHECK HTTPD"
+echo `date`;
+echo "-----------"

@@ -1,0 +1,80 @@
+#!/bin/bash
+#dac
+
+function check_httpd() {
+
+  #check httpd installed
+  #todo check httpd conf
+
+  local httpd_bin=${OPENSHIFT_DIY_DIR}/run/httpd/bin/
+
+  if [[ ! -e  ${httpd_bin} ]]; then
+      echo "APACHE not installed here >> "${httpd_bin}
+      download_httpd
+  else
+
+      echo "APACHE is installed."${APACHE_VERSION}
+
+  fi
+
+}
+
+function download_httpd() {
+
+  echo "downloading apache"
+  local pkg=httpd-${APACHE_VERSION}.tar.gz
+  pushd ${TMPDIR}
+  if [[ ! -e  ${TMPDIR}${pkg} ]]; then
+    wget -O ${pkg} http://apache.uvigo.es/httpd/${pkg}
+    #install_httpd
+  else
+    echo  "Already downloaded: "${TMPDIR}${pkg}
+    #install_httpd
+  fi
+  install_httpd
+
+}
+
+function install_httpd() {
+
+#echo "I will not install anything"
+
+local pkg=httpd-${APACHE_VERSION}.tar.gz
+
+
+pushd ${TMPDIR}
+echo "-----------"
+echo "install_httpd"
+echo "-----------"
+
+if [[ ! -e ${TMPDIR}httpd-${APACHE_VERSION} ]]; then
+
+  tar -xvzf ${pkg}
+
+fi
+
+export PATH=${OPENSHIFT_DIY_DIR}run/libs/bin:$PATH
+
+pushd httpd-${APACHE_VERSION}
+
+  echo "Configuring APACHE:"
+  ./configure \
+  --prefix=${OPENSHIFT_DIY_DIR}run/httpd \
+  --with-pcre=${OPENSHIFT_DIY_DIR}run/libs \
+  --enable-mods-shared=most \
+  --with-apr=${OPENSHIFT_DIY_DIR}run/libs/bin \
+  --with-apr-util=${OPENSHIFT_DIY_DIR}run/libs/bin \
+  --enable-so \
+  --enable-auth-digest \
+  --enable-rewrite \
+  --enable-setenvif \
+  --enable-mime \
+  --enable-deflate \
+  --enable-headers
+  make
+  make install >> ${TMPDIR}httpd-${APACHE_VERSION}.log
+
+
+echo "-----------"
+echo "-----------"
+}

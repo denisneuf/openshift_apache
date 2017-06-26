@@ -1,0 +1,169 @@
+#!/bin/bash
+
+function install_php() {
+
+    #todo check_icu Unicode --with-icu-dir=${ROOT_DIR}/libs \
+
+    #todo mcrypt --with-mcrypt=${ROOT_DIR}/libs \
+
+    #todo bison --check_bison
+
+    #remote: checking for bison... no
+    #remote: checking for byacc... no
+    #remote: checking for bison version... invalid
+
+    #remote: Configuring Zend
+    #remote: checking for bison version... (cached) invalid
+    #remote: configure: WARNING: This bison version is not supported for regeneration of the Zend/PHP parsers (found: none, min: 204, excluded: 3.0).
+
+    if [[ -e ${OPENSHIFT_DIY_DIR}run/php5/ ]]; then
+      rm -rf ${OPENSHIFT_DIY_DIR}run/php5/
+      echo "-----------"
+      echo "***"
+      echo "removed >> "${OPENSHIFT_DIY_DIR}run/php5/
+      echo "***"
+      echo `date`;
+    fi
+
+
+
+
+
+
+    local pkg=php-${PHP_VERSION}.tar.gz
+
+    #mkdir -p ${OPENSHIFT_RUN_DIR}/etc/php5/conf.d
+
+    pushd ${TMPDIR}
+    if [[ ! -e  ${TMPDIR}${pkg} ]]; then
+      wget -O ${pkg} http://www.php.net/get/${pkg}/from/us1.php.net/mirror
+      #install_httpd
+    else
+      echo  "Already downloaded: "${TMPDIR}${pkg}
+      #install_httpd
+    fi
+
+    pushd ${TMPDIR}
+    echo "-----------"
+    echo "PHP 5:6:30"
+    echo "-----------"
+
+    if [[ ! -e ${TMPDIR}php-${PHP_VERSION} ]]; then
+
+      tar -xvzf ${pkg}
+
+    fi
+
+    export PATH=${OPENSHIFT_DIY_DIR}run/libs/bin:$PATH
+
+    pushd php-${PHP_VERSION}
+
+
+
+    if [[ ! -d ${OPENSHIFT_DIY_DIR}run/php5/ ]]; then
+
+      echo "CREATING FOLDER FOR PHP >> "${OPENSHIFT_DIY_DIR}run/php5/
+
+      mkdir -p ${OPENSHIFT_DIY_DIR}run/php5/
+
+    else
+
+      echo "FOLDERS ALREADY CREATED FOR PHP >> "${OPENSHIFT_DIY_DIR}run/php5/
+
+    fi
+
+
+    echo "Configuring PHP 5 with fpm "
+    ./configure \
+        --with-libdir=${OPENSHIFT_DIY_DIR}run/libs/lib64/ \
+        --prefix=${OPENSHIFT_DIY_DIR}run/php5/ \
+        --with-config-file-path=${OPENSHIFT_DIY_DIR}run/etc/php5/ \
+        --with-config-file-scan-dir=${OPENSHIFT_DIY_DIR}run/etc/php5/conf.d/ \
+        --with-apxs2=${OPENSHIFT_DIY_DIR}run/httpd/bin/apxs \
+        --with-icu-dir=${OPENSHIFT_DIY_DIR}run/libs/ \
+        --with-mcrypt=${OPENSHIFT_DIY_DIR}run/libs/ \
+        --with-layout=PHP \
+        --with-curl \
+        --with-pear \
+        --with-zlib \
+        --with-mhash \
+        --with-mysql \
+        --with-pgsql \
+        --with-mysqli \
+        --with-pdo-mysql \
+        --with-pdo-pgsql \
+        --with-openssl \
+        --with-xmlrpc \
+        --with-xsl \
+        --with-bz2 \
+        --with-gettext \
+        --with-readline \
+        --with-fpm-user=www-data \
+        --with-fpm-group=www-data \
+        --with-kerberos \
+        --with-gd \
+        --with-jpeg-dir \
+        --with-png-dir \
+        --with-png-dir \
+        --with-xpm-dir \
+        --with-freetype-dir \
+        --enable-gd-native-ttf \
+        --disable-debug \
+        --enable-fpm \
+        --enable-cli \
+        --enable-inline-optimization \
+        --enable-exif \
+        --enable-wddx \
+        --enable-zip \
+        --enable-bcmath \
+        --enable-calendar \
+        --enable-ftp \
+        --enable-mbstring \
+        --enable-soap \
+        --enable-sockets \
+        --enable-shmop \
+        --enable-dba \
+        --enable-sysvsem \
+        --enable-sysvshm \
+        --enable-sysvmsg \
+        --enable-intl \
+        --enable-opcache \
+        --enable-cgi
+
+        make
+        make install >> ${TMPDIR}php5-${PHP_VERSION}.log
+
+    echo "End Configuring PHP 5"
+
+    #popd
+
+    #exit
+
+    # Copy configuration files
+
+
+
+}
+
+
+function check_php() {
+    local php_bin=${OPENSHIFT_DIY_DIR}run/php5/bin/php
+
+    echo "-----------------"
+    echo "PHP >> "${PHP_VERSION}
+    echo "-----------------"
+
+    if [[ ! -e  ${php_bin} ]]; then
+        echo "PHP not installed"
+        install_php
+    else
+        local php_version=`${php_bin} -r "echo phpversion();"`
+
+        if [[ ${PHP_VERSION} != ${php_version} ]]; then
+            echo "PHP old version: ${php_version}."
+            install_php
+        else
+            echo "PHP up to date, version: ${php_version}."
+        fi
+    fi
+}

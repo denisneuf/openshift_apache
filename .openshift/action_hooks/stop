@@ -1,0 +1,47 @@
+#!/bin/bash
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
+
+echo "-------------"
+echo "STOP SECTION"
+echo "-------------"
+
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/common
+
+bin=${OPENSHIFT_DIY_DIR}run/httpd/logs/httpd.pid
+
+echo "-------------"
+echo "STOP APACHE IS RUNNING >> "cat ${bin}
+echo "-------------"
+
+if [[ -e ${bin} ]]; then
+
+  cat ${bin}
+
+  pushd ${OPENSHIFT_RUN_DIR}httpd/bin/
+
+  ./apachectl -v
+
+  ./apachectl stop
+
+
+else
+
+  echo "-------------"
+  echo "APACHE NOT RUNNING"
+  echo "-------------"
+
+fi
+
+
+echo "-------------"
+echo "Stopping PHP-fpm pid"
+echo "-------------"
+echo `cat ${OPENSHIFT_RUN_DIR}php5/var/run/php-fpm.pid`
+if [ -f ${OPENSHIFT_RUN_DIR}php5/var/run/php-fpm.pid ];then
+    kill -QUIT `cat ${OPENSHIFT_RUN_DIR}php5/var/run/php-fpm.pid`
+fi
+
+
+echo "-------------"
+echo "STOP APACHE SECTION"
+echo "-------------"

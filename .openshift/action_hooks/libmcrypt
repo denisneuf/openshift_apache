@@ -1,0 +1,78 @@
+#!/bin/bash
+
+function install_libmcrypt() {
+
+  echo "install libmcrypt"
+
+  local ts=`date +%s`
+
+  local tar=libmcrypt-${LIBMCRYPT_VERSION}
+
+  local pkg=libmcrypt-${LIBMCRYPT_VERSION}.tar.gz
+  # Get archive
+  #download_and_unpack ${pkg} http://ftp.gnu.org/gnu/bison/${pkg}
+
+  pushd ${TMPDIR}
+
+
+  if [[ ! -e ${pkg} ]]; then
+
+
+    #echo http://apache.rediris.net/${lib}/${pkg}
+
+    wget -O ${pkg} http://sourceforge.net/projects/mcrypt/files/Libmcrypt/${LIBMCRYPT_VERSION}/${pkg}/download?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmcrypt%2F&ts=${ts}&use_mirror=freefr
+
+    tar -xvzf ${pkg}
+
+  else
+
+    echo "File downloaded: ${pkg}."
+
+    if [[ ! -d ${tar} ]]; then
+
+      tar -xvzf ${pkg}
+
+    fi
+
+
+  fi
+
+
+  pushd ${TMPDIR}libmcrypt-${LIBMCRYPT_VERSION}
+
+  echo "Configuring LibMCrypt"
+  ./configure \
+      --disable-posix-threads \
+      --enable-dynamic-loading \
+      --with-pic \
+      --disable-shared \
+      --with-included-algos=cbc,cfb,ctr,ecb,ncfb,nofb,ofb,stream,cast-128,gost,rijndael-128,twofish,arcfour,cast-256,loki97,rijndael-192,saferplus,wake,blowfish-compat,des,rijndael-256,serpent,xtea,blowfish,enigma,rc2,tripledes \
+      --prefix=${OPENSHIFT_DIY_DIR}run/libs \
+      --libdir=${OPENSHIFT_DIY_DIR}run/libs/lib64
+
+  echo "Compiling LibMCrypt"
+
+  make
+  make install >> ${TMPDIR}libmcrypt-${LIBMCRYPT_VERSION}.log
+
+
+}
+
+function check_libmcrypt() {
+
+
+    local mcrypt_bin=${OPENSHIFT_DIY_DIR}run/libs/bin/libmcrypt-config
+    if [[ ! -e  ${mcrypt_bin} ]]; then
+        echo "LibMCrypt not installed."
+        install_libmcrypt
+    else
+        local mcrypt_version=`${mcrypt_bin} --version | tr -d '\n'`
+
+        if [[ ${LIBMCRYPT_VERSION} != ${mcrypt_version} ]]; then
+            echo "LibMCrypt old, version: ${mcrypt_version}."
+            install_libmcrypt
+        else
+            echo "LibMCrypt up to date, version: ${mcrypt_version}."
+        fi
+    fi
+}

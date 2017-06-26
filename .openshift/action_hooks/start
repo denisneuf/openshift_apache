@@ -1,0 +1,27 @@
+#!/bin/bash
+# The logic to start up your application should be put in this
+# script. The application will work only if it binds to
+# $OPENSHIFT_DIY_IP:8080
+# nohup $OPENSHIFT_REPO_DIR/diy/testrubyserver.rb $OPENSHIFT_DIY_IP $OPENSHIFT_REPO_DIR/diy |& /usr/bin/logshifter -tag diy &
+
+echo "-------------"
+echo "START SECTION"
+echo "-------------"
+
+set -e
+
+umask 077
+
+# Load common interface All libs check chk chk chk chk
+source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/common
+
+echo "START APACHE"
+
+pushd ${OPENSHIFT_RUN_DIR}httpd/bin/
+
+./apachectl -v
+
+./apachectl start
+
+echo "----------"
+echo "END START SECTION"

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+function install_re2c() {
+    # Remark if not in PATH add RE2C=${ROOT_DIR}/libs/bin/re2c to php ./configure
+    local pkg=re2c-${RE2C_VERSION}.tar.gz
+    local tar=re2c-${RE2C_VERSION}
+    local ts=`date +%s`
+
+    pushd ${TMPDIR}
+
+    if [[ ! -e ${pkg} ]]; then
+
+
+      #echo http://apache.rediris.net/${lib}/${pkg}
+
+      wget -O ${pkg} http://sourceforge.net/projects/re2c/files/${RE2C_VERSION}/${pkg}/download?use_mirror=nchc&r=&use_mirror=ncu
+
+      tar -xvzf ${pkg}
+
+    else
+
+      echo "File downloaded: ${pkg}."
+
+      if [[ ! -d ${tar} ]]; then
+
+        tar -xvzf ${pkg}
+
+      fi
+
+
+    fi
+
+    echo "Configuring Re2c."
+
+    pushd ${TMPDIR}re2c-${RE2C_VERSION}
+
+    ./configure --prefix=${OPENSHIFT_DIY_DIR}run/libs --libdir=${OPENSHIFT_DIY_DIR}run/libs/lib64
+
+    echo "Compiling Re2c."
+    make
+    make install
+
+
+}
+
+function check_re2c() {
+    local re2c_bin=${OPENSHIFT_DIY_DIR}run/libs/bin/re2c
+    if [[ ! -e  ${re2c_bin} ]]; then
+        echo "Re2c not installed."
+        install_re2c
+    else
+        local version=`${re2c_bin} --version | head -n 1 | grep -oh '[0-9.]*$' | tr -d '\n'`
+
+        if [[ ${RE2C_VERSION} != ${version} ]]; then
+            echo "Re2c old, version: ${version}."
+            install_re2c
+        else
+            echo "Re2c up to date, version: ${version}."
+        fi
+    fi
+}

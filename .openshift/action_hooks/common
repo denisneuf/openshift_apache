@@ -1,0 +1,36 @@
+#!/bin/bash
+# Helper functions used by several scripts.
+
+export PATH=${OPENSHIFT_BIN}:$PATH
+
+
+#PHP_MODE='Apache 2.0 Handler'
+PHP_MODE='FPM/FastCGI'
+#PHP_MODE='CGI/FastCGI'
+
+
+#export OPENSHIFT_RUNTIME_DIR=${OPENSHIFT_DIY_DIR}runtime/
+export OPENSHIFT_RUN_DIR=${OPENSHIFT_DIY_DIR}run/
+export OPENSHIFT_BIN=${OPENSHIFT_RUNTIME_DIR}bin/
+
+export OPENSHIFT_RUN=${OPENSHIFT_DIY_DIR}
+
+export OPENSHIFT_REPO=${OPENSHIFT_REPO_DIR}
+
+export DATADIR=${OPENSHIFT_DATA_DIR}
+
+export HOMEDIR=${OPENSHIFT_HOMEDIR}
+
+export TMPDIR=${OPENSHIFT_TMP_DIR}
+
+export TEMPLATEDIR=${OPENSHIFT_REPO_DIR}.openshift/tmpl
+
+
+export LOGDIR=${OPENSHIFT_LOG_DIR}
+
+export TMPROOT=tmp/
+
+
+
+export OPENSHIFT_IP=${OPENSHIFT_DIY_IP}
+export OPENSHIFT_PORT=${OPENSHIFT_DIY_PORT}

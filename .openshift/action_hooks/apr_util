@@ -1,0 +1,77 @@
+#!/bin/bash
+
+function check_apr_util() {
+    local aprutil_bin=${OPENSHIFT_DIY_DIR}run/libs/bin/apu-1-config
+    if [[ ! -e  ${aprutil_bin} ]]; then
+        echo "! Apr util not installed "${APRUTIL_VERSION='1.5.4'}
+        install_apr_util
+    else
+        local aprutil_version=`${aprutil_bin} --version`
+
+        if [[ ${APRUTIL_VERSION} != ${aprutil_version} ]]; then
+            echo "Apr util old, version: ${aprutil_version}."
+            install_apr
+        else
+            echo "Apr util up to date, version: ${aprutil_version}."
+        fi
+    fi
+}
+
+
+
+
+function install_apr_util() {
+
+  local pkg=apr-util-${APRUTIL_VERSION}.tar.gz
+
+  local tar=apr-util-${APRUTIL_VERSION}
+
+  local lib='apr-util-'
+
+  local ts=`date +%s`
+
+  pushd ${TMPDIR}
+
+  echo "install_apr_util"
+
+  #echo ${tar}
+  #echo ${ts}
+  #echo ${pkg}
+
+  if [[ ! -e ${pkg} ]]; then
+
+
+    #echo http://apache.rediris.net/${lib}/${pkg}
+
+    wget -O ${pkg} http://apache.uvigo.es/apr/${pkg}
+
+    tar -xvzf ${pkg}
+
+  else
+
+    echo "File downloaded: ${pkg}."
+
+    if [[ ! -d ${tar} ]]; then
+
+      tar -xvzf ${pkg}
+
+    fi
+
+
+  fi
+
+  pushd ${TMPDIR}apr-util-${APRUTIL_VERSION}
+
+
+  echo "make_install_apr_util"
+
+  ./configure --prefix=${OPENSHIFT_DIY_DIR}run/libs --with-apr=${OPENSHIFT_DIY_DIR}run/libs
+  make
+  make install >> ${TMPDIR}apr-${APRUTIL_VERSION}.log
+
+  echo "End aprutil >> "apr-${APRUTIL_VERSION}
+
+  #make_install_libtool
+
+
+}

@@ -1,0 +1,65 @@
+#!/bin/bash
+
+function check_bison() {
+    local bin=${OPENSHIFT_DIY_DIR}run/libs/bin/bison
+    if [[ ! -e  ${bin} ]]; then
+        echo "Bison not installed."
+        install_bison
+    else
+        local version=`${bin} --version | head -n 1 | grep -oh '[0-9.]*' | head -n 1 | tr -d '\n'`
+
+        if [[ ${version} != "${BISON_VERSION}"* ]]; then
+            echo "Bison old, version: ${version}."
+            install_bison
+        else
+            echo "Bison up to date, version: ${version}."
+        fi
+    fi
+}
+
+
+function install_bison() {
+    local pkg=bison-${BISON_VERSION}.tar.gz
+    local tar=libtool-${BISON_VERSION}
+    # Get archive
+    #download_and_unpack ${pkg} http://ftp.gnu.org/gnu/bison/${pkg}
+
+    pushd ${TMPDIR}
+
+
+    if [[ ! -e ${pkg} ]]; then
+
+
+      #echo http://apache.rediris.net/${lib}/${pkg}
+
+      wget -O ${pkg} http://ftp.gnu.org/gnu/bison/${pkg}
+
+      tar -xvzf ${pkg}
+
+    else
+
+      echo "File downloaded: ${pkg}."
+
+      if [[ ! -d ${tar} ]]; then
+
+        tar -xvzf ${pkg}
+
+      fi
+
+
+    fi
+
+
+    pushd ${TMPDIR}bison-${BISON_VERSION}
+
+    echo "make_install_bison"
+
+    echo "Configuring Bison."
+
+    ./configure --prefix=${OPENSHIFT_DIY_DIR}run/libs --libdir=${OPENSHIFT_DIY_DIR}run/libs/lib64
+    make
+    make install >> ${TMPDIR}bison-${BISON_VERSION}.log
+
+    echo "End apr >> "bison-${BISON_VERSION}
+
+}

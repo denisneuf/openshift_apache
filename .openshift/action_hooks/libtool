@@ -1,0 +1,77 @@
+#!/bin/bash
+
+function check_libtool() {
+    local libtool_bin=${OPENSHIFT_DIY_DIR}run/libs/bin/libtool
+    if [[ ! -e  ${libtool_bin} ]]; then
+        echo "! Libtool not installed "${LIBTOOL_VERSION}
+        install_libtool
+    else
+        local libtool_version=`${libtool_bin} --version | head -n 1 | grep -oh '[0-9.]*$' | tr -d '\n'`
+
+        if [[ ${LIBTOOL_VERSION} != ${libtool_version} ]]; then
+            echo "Libtool old, version: ${libtool_version}."
+            install_libtool
+        else
+            echo "Libtool up to date, version: ${libtool_version}."
+        fi
+    fi
+}
+
+function make_install_libtool()
+{
+
+  pushd ${TMPDIR}libtool-${LIBTOOL_VERSION}
+
+  #pwd
+
+  ./configure --prefix=${OPENSHIFT_DIY_DIR}run/libs --libdir=${OPENSHIFT_DIY_DIR}run/libs/lib64
+  echo "Compiling Libtool"
+  make install >> ${TMPDIR}libtool-${LIBTOOL_VERSION}.log
+
+  echo "End Libtool >> "libtool-${LIBTOOL_VERSION}
+
+
+}
+
+
+function install_libtool() {
+
+  local pkg=libtool-${LIBTOOL_VERSION}.tar.gz
+
+  local tar=libtool-${LIBTOOL_VERSION}
+
+  local ts=`date +%s`
+
+  pushd ${TMPDIR}
+
+  echo "install_libtool"
+
+  #echo ${tar}
+  #echo ${ts}
+  #echo ${pkg}
+
+  if [[ ! -e ${pkg} ]]; then
+
+    wget -O ${pkg} http://gnu.xl-mirror.nl/libtool/${pkg}
+
+    tar -xvzf ${pkg}
+
+  else
+
+    echo "File downloaded: ${pkg}."
+
+    if [[ ! -d ${tar} ]]; then
+
+      tar -xvzf ${pkg}
+
+    fi
+
+
+  fi
+
+
+  echo "make_install_libtool"
+  make_install_libtool
+
+
+}
