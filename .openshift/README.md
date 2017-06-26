@@ -1,5 +1,7 @@
 For information about .openshift directory, consult the documentation:
 
+rhc domain-show
+
 rhc app-create openshiftapache diy --from-code https://github.com/denisneuf/openshift_apache.git
 
 rhc app delete openshiftapache
