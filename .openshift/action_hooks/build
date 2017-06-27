@@ -23,7 +23,7 @@ source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/re2c
 source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/build_php
 
 
-echo "-------------u-u"
+echo "--------------"
 echo "BUILD HTTPDX IP >> "${OPENSHIFT_IP}":"${OPENSHIFT_PORT}
 echo ${OPENSHIFT_RUNTIME_DIR}
 echo ${OPENSHIFT_RUN_DIR}
@@ -96,15 +96,15 @@ check_pcre
 
 #php
 
-#check_libtool
+check_libtool
 
-#check_libmcrypt
+check_libmcrypt
 
-#check_bison
+check_bison
 
-#check_icu
+check_icu
 
-#check_re2c
+check_re2c
 
 
 

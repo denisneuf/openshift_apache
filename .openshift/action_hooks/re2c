@@ -17,6 +17,8 @@ function install_re2c() {
 
       tar -xvzf ${pkg}
 
+      rm -rf ${pkg}
+
     else
 
       echo "File downloaded: ${pkg}."
@@ -24,6 +26,8 @@ function install_re2c() {
       if [[ ! -d ${tar} ]]; then
 
         tar -xvzf ${pkg}
+
+        rm -rf ${pkg}
 
       fi
 
@@ -38,7 +42,10 @@ function install_re2c() {
 
     echo "Compiling Re2c."
     make
-    make install
+    make install >> ${TMPDIR}re2c-${RE2C_VERSION}.log
+
+    pushd ${TMPDIR}
+    rm -rf re2c-${RE2C_VERSION}
 
 
 }

@@ -30,6 +30,11 @@ function make_install_libtool()
 
   echo "End Libtool >> "libtool-${LIBTOOL_VERSION}
 
+  pushd ${TMPDIR}
+
+  rm -rf libtool-${LIBTOOL_VERSION}
+
+
 
 }
 
@@ -56,6 +61,8 @@ function install_libtool() {
 
     tar -xvzf ${pkg}
 
+    rm -rf ${pkg}
+
   else
 
     echo "File downloaded: ${pkg}."
@@ -63,6 +70,8 @@ function install_libtool() {
     if [[ ! -d ${tar} ]]; then
 
       tar -xvzf ${pkg}
+
+      rm -rf ${pkg}
 
     fi
 

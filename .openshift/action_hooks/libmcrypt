@@ -24,6 +24,8 @@ function install_libmcrypt() {
 
     tar -xvzf ${pkg}
 
+    rm -rf ${pkg}
+
   else
 
     echo "File downloaded: ${pkg}."
@@ -31,6 +33,8 @@ function install_libmcrypt() {
     if [[ ! -d ${tar} ]]; then
 
       tar -xvzf ${pkg}
+
+      rm -rf ${pkg}
 
     fi
 
@@ -54,6 +58,10 @@ function install_libmcrypt() {
 
   make
   make install >> ${TMPDIR}libmcrypt-${LIBMCRYPT_VERSION}.log
+
+  pushd ${TMPDIR}
+
+  rm -rf libmcrypt-${LIBMCRYPT_VERSION}
 
 
 }

@@ -77,9 +77,7 @@ function install_apr_util() {
 
   pushd ${TMPDIR}
 
-  echo "rm -rf"apr-${APRUTIL_VERSION}
-
-  rm -rf apr-${APRUTIL_VERSION}
+  rm -rf apr-util-${APRUTIL_VERSION}
 
   #make_install_libtool
 

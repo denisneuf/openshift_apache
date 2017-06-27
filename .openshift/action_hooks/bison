@@ -36,6 +36,8 @@ function install_bison() {
 
       tar -xvzf ${pkg}
 
+      rm -rf ${pkg}
+
     else
 
       echo "File downloaded: ${pkg}."
@@ -43,6 +45,8 @@ function install_bison() {
       if [[ ! -d ${tar} ]]; then
 
         tar -xvzf ${pkg}
+
+        rm -rf ${pkg}
 
       fi
 
@@ -61,5 +65,10 @@ function install_bison() {
     make install >> ${TMPDIR}bison-${BISON_VERSION}.log
 
     echo "End apr >> "bison-${BISON_VERSION}
+
+    pushd ${TMPDIR}
+
+    rm -rf bison-${BISON_VERSION}
+
 
 }

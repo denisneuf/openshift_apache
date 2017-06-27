@@ -16,6 +16,8 @@ function install_icu() {
 
     tar -xvzf ${pkg}
 
+    rm -rf ${pkg}
+
     pushd icu/source/
 
     echo "Configuring ICU."
@@ -27,6 +29,10 @@ function install_icu() {
     echo "Compiling ICU."
     make
     make install >> ${TMPDIR}icu4c-${ICU_VERSION//./_}.log
+
+    pushd ${TMPDIR}
+
+    rm -rf icu
 
 
 }

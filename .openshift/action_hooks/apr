@@ -76,8 +76,6 @@ function install_apr() {
 
   pushd ${TMPDIR}
 
-  echo "rm -rf"apr-${APR_VERSION}
-
   rm -rf apr-${APR_VERSION}
 
   #make_install_libtool
