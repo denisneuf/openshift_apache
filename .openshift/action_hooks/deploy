@@ -8,6 +8,183 @@ echo "-------------"
 
 source ${OPENSHIFT_REPO_DIR}/.openshift/action_hooks/common
 
+umask 077
+
+
+php_bin=${OPENSHIFT_DIY_DIR}run/php5/bin/php
+
+httpd_bin=${OPENSHIFT_DIY_DIR}/run/httpd/bin/
+
+
+if [[ -e  ${php_bin} ]]; then
+
+
+  if [[ ! -d ${OPENSHIFT_DIY_DIR}run/etc/php5/ ]]; then
+
+    mkdir -p ${OPENSHIFT_DIY_DIR}run/etc/php5/
+    mkdir -p ${OPENSHIFT_DIY_DIR}run/etc/php5/conf.d/
+
+
+  else
+
+    echo "FOLDERS ALREADY CREATED FOR CONF PHP.INI etc/php5 >> "${OPENSHIFT_DIY_DIR}run/etc/php5
+
+  fi
+
+  echo "Pre-processing php.ini config"
+  cp ${TEMPLATEDIR}/php.ini.tmpl ${OPENSHIFT_RUN_DIR}etc/php5/php.ini
+
+  echo "Pre-processing extra.ini config"
+  cp ${TEMPLATEDIR}/extra.ini.tmpl ${OPENSHIFT_RUN_DIR}etc/php5/conf.d/extra.ini
+
+  echo "Pre-processing zend.ini config"
+  cp ${TEMPLATEDIR}/zend.ini.tmpl ${OPENSHIFT_RUN_DIR}etc/php5/conf.d/zend.ini
+  perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' ${OPENSHIFT_RUN_DIR}etc/php5/conf.d/zend.ini
+
+fi
+
+if [[ -e  ${httpd_bin} ]]; then
+
+  echo "Pre-processing http config"
+  cp ${TEMPLATEDIR}/httpd.conf.tmpl ${OPENSHIFT_RUN_DIR}/httpd.conf
+  perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' ${OPENSHIFT_RUN_DIR}/httpd.conf
+
+  echo "copying-processing http config"
+
+
+  if [[ -e ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf ]]; then
+
+    echo "make a backup httpd.conf and delete the old config file"
+
+    mv ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf.back
+
+    #rm ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+
+  else
+
+    echo "http config do not exist"
+
+  fi
+
+  yes | cp ${OPENSHIFT_RUN_DIR}/httpd.conf ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+
+  rm ${OPENSHIFT_RUN_DIR}/httpd.conf
+
+  if [[ ${PHP_MODE} == 'Apache 2.0 Handler' ]]; then
+
+    echo "Add Pre-processing http config: ${PHP_MODE}"
+
+    echo "LoadModule php5_module        modules/libphp5.so" >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    echo "AddHandler php5-script    .php" >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    #LoadModule php5_module        modules/libphp5.so
+    #AddHandler php5-script    .php
+    #statements
+  fi
+
+  if [[ ${PHP_MODE} == 'CGI/FastCGI' ]]; then
+
+    echo "Add Pre-processing http config: ${PHP_MODE}"
+
+    yes | cp ${OPENSHIFT_RUN_DIR}php5/bin/php-cgi ${OPENSHIFT_RUN_DIR}httpd/cgi-bin/php-cgi
+
+    #echo ${OPENSHIFT_RUN_DIR}httpd/cgi-bin/php-cgi
+
+
+
+
+    echo 'ScriptAlias /php-bin ${OPENSHIFT_RUN_DIR}httpd/cgi-bin/' >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    echo 'Action httpd-php-script /php-bin/php-cgi' >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    echo 'AddHandler httpd-php-script .php' >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+
+
+    #echo '<Directory "${OPENSHIFT_DATA_DIR}">'  >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    #echo '   Order allow,deny'  >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    #echo '   Allow from all'  >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    #echo '</Directory>'  >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+
+
+
+    #echo "Action application/x-httpd-php5 ${OPENSHIFT_RUN_DIR}php5/bin/php-cgi" >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+
+
+  fi
+
+  if [[ ${PHP_MODE} == 'FPM/FastCGI' ]]; then
+
+    echo "Add Pre-processing http config: ${PHP_MODE}"
+
+    cp ${TEMPLATEDIR}/php-fpm.conf.tmpl ${OPENSHIFT_RUN_DIR}php5/etc/php-fpm.conf
+
+    echo '<FilesMatch "\.php$">' >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    echo '# Note: The only part that varies is /path/to/app.sock' >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    echo 'SetHandler  "proxy:unix:${OPENSHIFT_RUN_DIR}php5/var/run/php-fpm.socket|fcgi://${OPENSHIFT_IP}/"' >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+    echo '</FilesMatch>' >> ${OPENSHIFT_RUN_DIR}httpd/conf/httpd.conf
+
+
+
+
+    echo "START PHP-FPM DEAMON"
+    #${OPENSHIFT_RUN_DIR}php5/sbin/
+    ${OPENSHIFT_RUN_DIR}php5/sbin/php-fpm -y ${OPENSHIFT_DIY_DIR}run/php5/etc/php-fpm.conf -c ${OPENSHIFT_DIY_DIR}run/etc/php5/php.ini
+
+
+  fi
+
+  echo "finish Pre-processing http config."
+
+  if [[ ! -e ${OPENSHIFT_DATA_DIR}index.html ]]; then
+
+    echo "set home page in the persistent data folder"
+
+    cp ${OPENSHIFT_RUN_DIR}httpd/htdocs/index.html ${OPENSHIFT_DATA_DIR}index.html
+
+  else
+
+    echo "index.html exist"
+
+  fi
+
+fi
+
+
+pid=${OPENSHIFT_DIY_DIR}run/httpd/logs/httpd.pid
+
+echo "-------------"
+echo "STOP APACHE IS RUNNING >> "cat ${bin}
+echo "-------------"
+
+if [[ -e ${pid} ]]; then
+
+  pushd ${OPENSHIFT_RUN_DIR}httpd/bin/
+
+  ./apachectl -v
+
+  ./apachectl stop
+
+
+else
+
+  echo "-------------"
+  echo "APACHE NOT RUNNING"
+  echo "-------------"
+
+fi
+
+
+echo "-------------"
+echo "Stopping PHP-fpm pid"
+echo "-------------"
+echo `cat ${OPENSHIFT_RUN_DIR}php5/var/run/php-fpm.pid`
+
+if [ -f ${OPENSHIFT_RUN_DIR}php5/var/run/php-fpm.pid ];then
+    kill -QUIT `cat ${OPENSHIFT_RUN_DIR}php5/var/run/php-fpm.pid`
+else
+
+  echo "-------------"
+  echo "PHP-fpm NOT RUNNING"
+  echo "-------------"
+
+fi
 
 echo "-------------"
 echo "END DEPLOY SECTION"

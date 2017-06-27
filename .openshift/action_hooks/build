@@ -100,7 +100,6 @@ check_pcre
 
 #check_libmcrypt
 
-
 #check_bison
 
 #check_icu
